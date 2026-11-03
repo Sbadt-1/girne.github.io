@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giriş Yap | Okulum Güvende</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a2a5e">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #0a2a5e; --navy-deep: #061a38; --blue: #1565d8; --blue-light: #64a6ff;
+    --ink: #0a2a5e; --muted: #4a658c; --line: #c6d6ef; --card: #ffffffa1;
+  }
+  body {
+    font-family: 'Segoe UI', system-ui, Arial, sans-serif;
+    min-height: 100vh; display: flex; justify-content: center; align-items: center;
+    background:
+      radial-gradient(900px 500px at 15% 10%, rgba(25,118,210,.45), transparent 60%),
+      radial-gradient(800px 500px at 85% 90%, rgba(100,166,255,.35), transparent 60%),
+      linear-gradient(135deg, #061a38 0%, #0b2f63 45%, #1256a8 100%);
+    padding: 24px; overflow-x: hidden;
+  }
+  .blob { position: fixed; border-radius: 50%; filter: blur(70px); opacity: .35; pointer-events: none; animation: float 9s ease-in-out infinite; }
+  .b1 { width: 340px; height: 340px; background: #1976d2; top: -90px; left: -90px; }
+  .b2 { width: 300px; height: 300px; background: #0a2a5e; bottom: -100px; right: -70px; animation-delay: -4s; }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(26px); } }
+
+  .login-card {
+    position: relative; background: var(--card);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    width: 100%; max-width: 400px; border-radius: 24px;
+    box-shadow: 0 24px 70px rgba(0,10,40,.55);
+    border: 1px solid rgba(255,255,255,.65);
+    overflow: hidden; animation: slideUp .55s cubic-bezier(.2,.8,.25,1);
+  }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(34px) scale(.98); } to { opacity: 1; transform: none; } }
+  .card-top { background: linear-gradient(135deg, #0a2a5e, #1565d8); padding: 30px 30px 26px 30px; color: #eaf1ff; position: relative; overflow: hidden; }
+  .card-top::after { content: ""; position: absolute; width: 220px; height: 220px; border-radius: 50%; background: rgba(255,255,255,.12); right: -70px; top: -70px; }
+  .card-top::before { content: ""; position: absolute; width: 140px; height: 140px; border-radius: 50%; background: rgba(255,255,255,.08); right: 40px; bottom: -70px; }
+  .logo-row { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; }
+  .logo {
+    width: 58px; height: 58px; border-radius: 16px; flex-shrink: 0;
+    background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.4);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; }
+  .card-top h2 { font-size: 22px; letter-spacing: .2px; }
+  .card-top p { font-size: 13px; opacity: .85; margin-top: 3px; }
+  .card-body { padding: 26px 28px 28px 28px; }
+  .input-group { position: relative; margin-bottom: 14px; }
+  .input-group input {
+    width: 100%; padding: 13px 90px 13px 14px;
+    border: 2px solid var(--line); border-radius: 12px; font-size: 15px;
+    outline: none; transition: .2s; background: rgba(255,255,255,.75); color: var(--ink);
+  }
+  .input-group input::placeholder { color: #7b93b5; }
+  .input-group input:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 4px rgba(21,101,216,.15); }
+  #kullanici { padding-right: 14px; }
+  .toggle-pass { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 12.5px; font-weight: 700; color: var(--navy); opacity: .7; user-select: none; border: none; background: #eef3fd; padding: 6px 10px; border-radius: 8px; }
+  .toggle-pass:hover { opacity: 1; }
+  .row { display: flex; justify-content: flex-end; align-items: center; font-size: 13px; margin: 2px 0 16px 0; color: #3e587d; }
+  .row label { display: flex; align-items: center; gap: 7px; cursor: pointer; }
+  .row input[type=checkbox] { accent-color: #0a2a5e; width: 15px; height: 15px; }
+  button.submit {
+    width: 100%; padding: 14px; border: none; border-radius: 12px;
+    background: linear-gradient(135deg, #0a2a5e 0%, #1150ad 60%, #1976d2 100%);
+    color: #f2f7ff; font-size: 16px; font-weight: 700; cursor: pointer; transition: .2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  button.submit:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(10,42,94,.45); filter: brightness(1.08); }
+  button.submit:active { transform: none; }
+  button.submit.loading { opacity: .8; pointer-events: none; }
+  .spinner { display: none; width: 17px; height: 17px; border-radius: 50%; border: 2.5px solid rgba(255,255,255,.4); border-top-color: #fff; animation: spin .7s linear infinite; }
+  button.submit.loading .spinner { display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .footer { text-align: center; font-size: 13px; color: #5a7598; margin-top: 18px; }
+  .footer a { color: #0f4fb0; text-decoration: none; font-weight: 700; }
+  .footer a:hover { text-decoration: underline; }
+  #hata, #bilgi { display: none; font-size: 13px; padding: 11px 12px; border-radius: 10px; margin-bottom: 14px; text-align: center; line-height: 1.5; }
+  #hata { background: #fde8e8; color: #a12323; border: 1px solid #f3b8b8; }
+  #hata.show { display: block; animation: shake .35s; }
+  #bilgi { background: #d6e7ff; color: #0a2a5e; border: 1px solid #9ec1ee; }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+</style>
+</head>
+<body>
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+
+<div class="login-card">
+  <div class="card-top">
+    <div class="logo-row" onclick="window.location.href='index.html'" style="cursor:pointer;">
+      <div class="logo"><img src="okulum_guvende_logo.png" alt="Okulum Güvende"></div>
+      <div>
+        <h2>Tekrar hoş geldin</h2>
+        <p>Devam etmek için giriş yap</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <div id="hata"></div>
+    <div id="bilgi"></div>
+
+    <form id="loginForm" novalidate>
+      <div class="input-group">
+        <input type="text" id="kullanici" placeholder="Kullanıcı Adı" required autocomplete="username">
+      </div>
+      <div class="input-group">
+        <input type="password" id="sifre" placeholder="Şifre" required autocomplete="current-password">
+        <button type="button" class="toggle-pass" id="togglePass" title="Göster/Gizle">Göster</button>
+      </div>
+      <div class="row">
+        <label><input type="checkbox" id="hatirla" checked> Beni hatırla</label>
+      </div>
+      <button class="submit" type="submit" id="girisBtn"><span class="spinner"></span><span id="girisText">Giriş Yap →</span></button>
+    </form>
+
+    <div class="footer">Hesabın yok mu? <a href="kayit.html">Kayıt Ol</a></div>
+  </div>
+</div>
+
+<script>
+  function getUsers() {
+    try { return JSON.parse(localStorage.getItem("kullanicilar") || "[]"); }
+    catch(e) { return []; }
+  }
+  function saveUsers(users) {
+    localStorage.setItem("kullanicilar", JSON.stringify(users));
+  }
+
+  // İlk kurulumda varsayılan hesaplar (silinen normal hesaplar geri gelmez;
+  // Admin hesabı her zaman korunur)
+  (function varsayilanHesap() {
+    const ilkKurulum = localStorage.getItem("kullanicilar") === null;
+    const users = getUsers();
+    if (ilkKurulum) {
+      const varMi = users.some(u => u.kullanici.toLowerCase() === "ekrem demir tuncay".toLowerCase());
+      if (!varMi) {
+        users.push({ kullanici: "Ekrem Demir Tuncay", sifre: "12345" });
+      }
+    }
+    const adminVarMi = users.some(u => u.kullanici.toLowerCase() === "admin");
+    if (!adminVarMi) {
+      users.push({ kullanici: "Admin", sifre: "Admin123!", eposta: "", admin: true });
+    }
+    saveUsers(users);
+  })();
+
+  // Zaten oturum varsa direkt git (mantık aynı)
+  if (localStorage.getItem("oturum")) {
+    window.location.href = "hosgeldin.html";
+  }
+
+  const toggle = document.getElementById("togglePass");
+  const sifre = document.getElementById("sifre");
+  toggle.addEventListener("click", () => {
+    const acikMi = sifre.type === "password";
+    sifre.type = acikMi ? "text" : "password";
+    toggle.textContent = acikMi ? "Gizle" : "Göster";
+  });
+
+  const kayitli = localStorage.getItem("kullanici_hatirla");
+  if (kayitli) document.getElementById("kullanici").value = kayitli;
+
+  // kayit.html'den yönlendirme mesajı (mantık aynı)
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("kayit") === "ok") {
+    const b = document.getElementById("bilgi");
+    b.style.display = "block";
+    b.textContent = "Kayıt başarılı! Şimdi giriş yapabilirsin.";
+  }
+
+  function hataGoster(msg) {
+    const h = document.getElementById("hata");
+    h.textContent = msg;
+    h.classList.remove("show");
+    void h.offsetWidth;
+    h.classList.add("show");
+  }
+
+  document.getElementById("loginForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const kullanici = document.getElementById("kullanici").value.trim();
+    const pass = sifre.value;
+    const bilgi = document.getElementById("bilgi");
+    bilgi.style.display = "none";
+
+    const users = getUsers();
+    const bulunan = users.find(u => u.kullanici.toLowerCase() === kullanici.toLowerCase());
+
+    if (!bulunan) {
+      hataGoster("Bu kullanıcı kayıtlı değil. Önce Kayıt Ol.");
+      return;
+    }
+    if (bulunan.sifre !== pass) {
+      hataGoster("Şifre hatalı, tekrar dene.");
+      return;
+    }
+
+    // Başarılı giriş (mantık aynı, sadece buton efekti eklendi)
+    const btn = document.getElementById("girisBtn");
+    btn.classList.add("loading");
+    document.getElementById("girisText").textContent = "Giriş yapılıyor...";
+    localStorage.setItem("oturum", bulunan.kullanici);
+    if (document.getElementById("hatirla").checked) {
+      localStorage.setItem("kullanici_hatirla", bulunan.kullanici);
+    } else {
+      localStorage.removeItem("kullanici_hatirla");
+    }
+    setTimeout(() => { window.location.href = "hosgeldin.html"; }, 450);
+  });
+</script>
+
+  <!-- PWA Service Worker kaydı -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js");
+    }
+  </script>
+
+</body>
+</html>

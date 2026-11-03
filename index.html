@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Okulum Güvende</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a2a5e">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --navy: #0a2a5e; --blue: #1565d8; --muted: #4a658c; --line: #c6d6ef; --card: rgba(255,255,255,.85); }
+  body {
+    font-family: 'Segoe UI', system-ui, Arial, sans-serif;
+    min-height: 100vh; color: var(--navy);
+    background:
+      radial-gradient(900px 500px at 15% 10%, rgba(25,118,210,.45), transparent 60%),
+      radial-gradient(800px 500px at 85% 90%, rgba(100,166,255,.35), transparent 60%),
+      linear-gradient(135deg, #061a38 0%, #0b2f63 45%, #1256a8 100%);
+  }
+  .navbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 24px; max-width: 1100px; margin: 0 auto;
+    border-bottom: none;
+  }
+  .brand { font-weight: 900; font-size: 24px; color: #fff; display: flex; align-items: center; gap: 10px; letter-spacing: .5px; text-decoration: none; }
+  .brand-dot { width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px rgba(255,255,255,.25); }
+  .brand-logo { height: 30px; width: auto; margin-right: 10px; border-radius: 8px; display: block; }
+  .auth-buttons { display: flex; gap: 10px; }
+  .btn-outline { padding: 10px 20px; border: 2px solid #fff; border-radius: 10px; background: transparent; color: #fff; font-size: 14.5px; font-weight: 800; cursor: pointer; transition: .2s; text-decoration: none; }
+  .btn-outline:hover { background: rgba(255,255,255,.15); }
+  .btn-fill { padding: 10px 22px; border: none; border-radius: 10px; background: #fff; color: var(--navy); font-size: 14.5px; font-weight: 800; cursor: pointer; transition: .2s; text-decoration: none; }
+  .btn-fill:hover { filter: brightness(.95); }
+
+  .hero { max-width: 900px; margin: 60px auto 40px auto; padding: 0 24px; text-align: center; color: #fff; }
+  .hero h1 { font-size: 42px; line-height: 1.15; margin-bottom: 16px; font-weight: 900; }
+  .hero p { font-size: 17px; opacity: .95; margin-bottom: 24px; line-height: 1.6; }
+  .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .hero-btn { padding: 14px 26px; border-radius: 14px; font-size: 16px; font-weight: 800; cursor: pointer; border: none; transition: .2s; text-decoration: none; display: inline-block; }
+  .hero-btn.primary { background: #fff; color: var(--navy); }
+  .hero-btn.primary:hover { filter: brightness(.95); }
+  .hero-btn.ghost { background: rgba(255,255,255,.18); color: #fff; border: 1px solid rgba(255,255,255,.5); }
+  .hero-btn.ghost:hover { background: rgba(255,255,255,.3); }
+
+  .section { max-width: 900px; margin: 0 auto; padding: 60px 24px; }
+  .section h2 { font-size: 28px; color: #fff; margin-bottom: 24px; font-weight: 800; text-align: center; }
+  .section p { color: #d4e4ff; font-size: 15.5px; line-height: 1.7; margin-bottom: 18px; text-align: center; opacity: .92; }
+
+  .features { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 30px; }
+  .feature { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 16px; padding: 22px; flex: 1; min-width: 240px; max-width: 280px; color: #fff; backdrop-filter: blur(8px); }
+  .feature h3 { font-size: 16px; margin-bottom: 10px; color: #fff; }
+  .feature p { font-size: 13.5px; opacity: .85; line-height: 1.5; margin: 0; }
+
+  .footer { border-top: 1px solid rgba(255,255,255,.2); padding: 30px 24px; text-align: center; color: #9fb0c8; font-size: 13px; max-width: 1100px; margin: 0 auto; }
+
+  @media (max-width: 640px) { .hero h1 { font-size: 30px; } .navbar { padding: 14px 16px; } }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="brand"><img src="okulum_guvende_logo.png" class="brand-logo" alt="Okulum Güvende"> Okulum Güvende</a>
+  <div class="auth-buttons">
+    <a href="login.html" class="btn-outline">Giriş Yap</a>
+    <a href="kayit.html" class="btn-fill">Kayıt Ol</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <h1>Okulum Güvende — Acil Durumda Her Saniye Değerlidir</h1>
+  <p>Öğrencilerin TC, kan grubu, alerji, kronik hastalık ve acil kişi bilgilerini tek bir kartta toplayın. Acil durumda ilk müdahale edenler tek birQR kodla veya ekrandan tüm kritik bilgilere erişebilir.</p>
+  <div class="hero-actions">
+    <a href="kayit.html" class="hero-btn primary">Hemen Kayıt Ol</a>
+    <a href="hakkimizda.html" class="hero-btn ghost">Biz Kimiz</a>
+  </div>
+</header>
+
+<section class="section">
+  <h2>Neden Okulum Güvende?</h2>
+  <div class="features">
+    <div class="feature">
+      <h3>🩺 Acil Durum Kartı</h3>
+      <p>Kan grubu, alerji, kronik hastalık ve kullanılan ilaçlar tek ekranda. Yazdırabilir, telefonunda açık tutabilirsin.</p>
+    </div>
+    <div class="feature">
+      <h3>👨‍👩‍👧‍👦 Aile Bilgileri</h3>
+      <p>Anne, baba ve acil durum kişisi telefonlarıyla birlikte ilk kim bilgilendirilsin seçeneği.</p>
+    </div>
+    <div class="feature">
+      <h3>📱 Çevrimdışı Çalışır</h3>
+      <p>Tüm bilgiler sadece cihazında saklanır. İnternet gerektirmez, her zaman erişilebilir.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <p>&copy; 2026 Okulum Güvende — Okulcular için güvenlik uygulaması</p>
+</footer>
+
+</body>
+</html>

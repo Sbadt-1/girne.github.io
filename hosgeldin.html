@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Okulum Güvende</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a2a5e">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #0a2a5e; --navy-deep: #061a38; --blue: #1565d8; --blue-light: #64a6ff;
+    --ink: #0a2a5e; --muted: #4a658c; --line: #c6d6ef; --card: #ffffffa1;
+  }
+  body {
+    font-family: 'Segoe UI', system-ui, Arial, sans-serif;
+    min-height: 100vh; color: var(--ink);
+    background:
+      radial-gradient(900px 500px at 12% 8%, rgba(25,118,210,.4), transparent 60%),
+      radial-gradient(800px 520px at 88% 92%, rgba(100,166,255,.32), transparent 60%),
+      linear-gradient(135deg, #061a38 0%, #0b2f63 45%, #1256a8 100%);
+  }
+  .navbar {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(255,255,255,.82); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+    padding: 13px 28px; display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 4px 20px rgba(0,10,40,.25);
+  }
+  .navbar .brand { font-weight: 800; color: var(--navy); font-size: 19px; display: flex; align-items: center; gap: 9px; text-decoration: none; }
+  .brand-dot { width: 12px; height: 12px; border-radius: 50%; background: linear-gradient(135deg, #0a2a5e, #1976d2); box-shadow: 0 0 0 4px rgba(21,101,216,.15); }
+  .brand-logo { height: 26px; width: auto; margin-right: 8px; border-radius: 6px; }
+  .user-pill {
+    display: flex; align-items: center; gap: 10px; background: #dfe9fb;
+    padding: 5px 15px 5px 5px; border-radius: 999px; color: var(--navy);
+    font-weight: 700; font-size: 14px; border: 1px solid #bfd0ec; max-width: 46vw;
+  }
+  .user-pill span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; background: linear-gradient(135deg, #0a2a5e, #1976d2); color: #eef4ff; display: flex; align-items: center; justify-content: center; font-weight: 800; overflow: hidden; }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; display: none; }
+
+  .layout { display: flex; max-width: 1280px; margin: 30px auto 50px auto; padding: 0 24px; gap: 22px; align-items: flex-start; }
+  .sidebar {
+    width: 248px; min-width: 248px; background: linear-gradient(180deg, #0c3268, #0a2a5e);
+    border-radius: 20px; padding: 18px 14px; border: 1px solid rgba(255,255,255,.18);
+    box-shadow: 0 16px 44px rgba(0,10,40,.45);
+    animation: slideLeft .5s cubic-bezier(.2,.8,.25,1); position: sticky; top: 86px;
+  }
+  @keyframes slideLeft { from { opacity: 0; transform: translateX(-25px); } to { opacity: 1; transform: none; } }
+  .sidebar h4 { color: #8fb0dd; font-size: 11px; letter-spacing: 2px; margin: 4px 12px 12px 12px; }
+  .menu-btn {
+    width: 100%; text-align: left; padding: 13px 14px; margin-bottom: 8px; border: 1px solid transparent;
+    border-radius: 12px; cursor: pointer; font-size: 14.5px; font-weight: 700;
+    background: transparent; color: #d4e4ff; transition: .2s; display: flex; gap: 11px; align-items: center;
+  }
+  .menu-btn:hover { background: rgba(255,255,255,.12); transform: translateX(4px); }
+  .menu-btn.active { background: var(--card); color: var(--navy); border-color: rgba(255,255,255,.6); box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+  .sidebar .logout { margin-top: 14px; background: rgba(255,80,80,.14); color: #ffb3b3; border: 1px solid rgba(255,120,120,.25); }
+  .sidebar .logout:hover { background: rgba(255,80,80,.28); }
+  .side-note { margin: 14px 6px 2px 6px; font-size: 11.5px; color: #8fb0dd; line-height: 1.6; }
+
+  .container { flex: 1; min-width: 0; }
+  .welcome-card {
+    background: var(--card); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    border-radius: 22px; padding: 46px 48px;
+    box-shadow: 0 22px 65px rgba(0,10,40,.5); border: 1px solid rgba(255,255,255,.6);
+    animation: slideUp .5s cubic-bezier(.2,.8,.25,1); min-height: 560px;
+  }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
+  .section { display: none; }
+  .section.active { display: block; animation: fadeIn .35s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+  .profile-hero {
+    display: flex; align-items: center; gap: 22px; padding: 22px;
+    background: rgba(255,255,255,.55); border: 1px solid var(--line); border-radius: 18px;
+    margin-bottom: 8px;
+  }
+  .photo-wrap {
+    width: 112px; height: 112px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, #0a2a5e, #1976d2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 44px; color: #eaf1ff; font-weight: 800;
+    border: 4px solid #fff; outline: 3px solid #bfd6f5; overflow: hidden; cursor: pointer;
+    transition: .25s;
+  }
+  .photo-wrap:hover { transform: scale(1.05) rotate(-2deg); box-shadow: 0 12px 28px rgba(10,42,94,.4); }
+  .photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: none; }
+  .profile-hero h1 { color: var(--navy); font-size: 27px; line-height: 1.25; overflow-wrap: anywhere; }
+  .profile-hero .hint { color: var(--muted); font-size: 13.5px; margin-top: 6px; }
+  .profile-hero .hint b { color: var(--navy); }
+  .qr-kutu { margin-top: 18px; background: rgba(255,255,255,.6); border: 1px solid var(--line); border-radius: 16px; padding: 22px; text-align: center; }
+  .qr-kutu h2 { font-size: 16px; margin-bottom: 4px; }
+  #qrAlan { display: flex; justify-content: center; margin: 12px 0 4px 0; min-height: 20px; }
+  #qrAlan img, #qrAlan canvas { border: 10px solid #fff; border-radius: 10px; box-shadow: 0 10px 26px rgba(10,42,94,.3); }
+
+  h1.page { color: var(--navy); margin-bottom: 6px; font-size: 25px; }
+  p.sub { color: var(--muted); font-size: 14px; }
+  .tab-bar { display: flex; gap: 14px; margin: 20px 0; }
+  .tab-btn {
+    flex: 1; padding: 16px 10px; border-radius: 16px; border: 2.5px solid var(--navy);
+    background: rgba(255,255,255,.7); color: var(--navy);
+    font-size: 15px; font-weight: 800; cursor: pointer; transition: .2s;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .tab-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(10,42,94,.2); }
+  .tab-btn.active { background: var(--navy); color: #f2f7ff; box-shadow: 0 10px 22px rgba(10,42,94,.35); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; animation: fadeIn .3s ease; }
+  .bilgi-kutu { background: rgba(255,255,255,.6); border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
+  .bilgi-kutu h2 { font-size: 15.5px; color: var(--navy); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .bilgi-kutu h2:not(:first-child) { margin-top: 20px; padding-top: 16px; border-top: 1px dashed #bfd0ec; }
+  .info-row { background: rgba(255,255,255,.8); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; gap: 12px; color: var(--navy); font-size: 14px; }
+  .info-row span:last-child { color: var(--muted); font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+  input.text, select.text, textarea.text {
+    width: 100%; padding: 12px; margin-bottom: 11px; border: 2px solid var(--line);
+    border-radius: 11px; font-size: 14px; outline: none; background: rgba(255,255,255,.8); color: var(--navy);
+    font-family: inherit; transition: .2s;
+  }
+  textarea.text { resize: vertical; min-height: 60px; }
+  input.text:focus, select.text:focus, textarea.text:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 4px rgba(21,101,216,.13); }
+  select.text { cursor: pointer; }
+  .form-grid { display: flex; gap: 11px; }
+  .form-grid .text { flex: 1; min-width: 0; }
+  .tel-row { display: flex; gap: 8px; margin-bottom: 11px; }
+  .tel-row select.kod {
+    width: 108px; flex-shrink: 0; padding: 12px 6px; border: 2px solid #c6d6ef;
+    border-radius: 11px; font-size: 14px; background: rgba(255,255,255,.8); color: #0a2a5e; outline: none; cursor: pointer;
+  }
+  .tel-row select.kod:focus { border-color: #1565d8; background: #fff; }
+  .tel-row .text { flex: 1; margin-bottom: 0; min-width: 0; }
+  .kullanici-satir { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: rgba(255,255,255,.8); border: 1px solid #c6d6ef; border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
+  .kullanici-satir .ad { font-weight: 700; font-size: 14px; overflow-wrap: anywhere; }
+  .kullanici-satir .eposta { font-size: 12px; color: #4a658c; }
+  .kullanici-satir .rozet { font-size: 11px; font-weight: 800; background: #0a2a5e; color: #fff; border-radius: 20px; padding: 3px 10px; margin-left: 8px; white-space: nowrap; }
+  .btn-sil { padding: 9px 18px; border: none; border-radius: 9px; background: linear-gradient(135deg, #7a1010, #d32f2f); color: #fff; font-size: 13px; font-weight: 800; cursor: pointer; flex-shrink: 0; transition: .2s; }
+  .btn-sil:hover { filter: brightness(1.15); }
+  .field-label { display: block; font-size: 11.5px; color: var(--muted); font-weight: 800; margin: 6px 0 4px 2px; letter-spacing: .2px; }
+  .btn-group { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  button.big { padding: 13px 26px; border-radius: 12px; border: none; font-size: 14.5px; font-weight: 800; cursor: pointer; transition: .2s; }
+  .btn-primary { background: linear-gradient(135deg, #0a2a5e, #1976d2); color: #f2f7ff; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(10,42,94,.4); }
+  .btn-secondary { background: #dfe9fb; color: var(--navy); border: 1px solid #bfd0ec; }
+  .btn-secondary:hover { background: #cbdaf2; }
+  .btn-danger { background: linear-gradient(135deg, #7a1010, #d32f2f); color: #fff; }
+  .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(180,20,20,.4); }
+  .danger-zone { margin-top: 18px; border: 2px solid #f3b8b8; background: rgba(253,232,232,.55); border-radius: 16px; padding: 20px; }
+  #kisiMesaj, #ayarMesaj { margin-top: 12px; font-size: 13.5px; color: var(--navy); font-weight: 600; }
+
+  /* ---- Acil Durum Kartı ---- */
+  .acil-kart {
+    background: #fff; border-radius: 20px; padding: 26px; box-shadow: 0 20px 60px rgba(0,10,40,.45);
+    border: 3px solid #0a2a5e; max-width: 480px; margin: 24px auto 0 auto;
+  }
+  .acil-baslik { background: linear-gradient(135deg, #0a2a5e, #1565d8); color: #fff; padding: 18px 22px; border-radius: 16px 16px 0 0; text-align: center; }
+  .acil-baslik h2 { margin: 0; font-size: 20px; }
+  .acil-baslik p { margin: 4px 0 0; font-size: 13px; opacity: .92; }
+  .acil-icerik { padding: 20px 22px 10px 22px; }
+  .acil-foto-wrap { width: 88px; height: 88px; border-radius: 50%; background: linear-gradient(135deg, #0a2a5e, #1976d2); margin: 0 auto 14px auto; display: flex; align-items: center; justify-content: center; font-size: 36px; color: #eaf1ff; font-weight: 800; border: 5px solid #fff; overflow: hidden; }
+  .acil-foto-wrap img { width: 100%; height: 100%; object-fit: cover; display: none; border-radius: 50%; }
+  .acil-satir { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 11px; padding-bottom: 10px; border-bottom: 1px dashed #c6d6ef; font-size: 14px; align-items: baseline; }
+  .acil-satir:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+  .acil-satir .etiket { color: #4a658c; font-weight: 800; font-size: 13px; }
+  .acil-satir .deger { color: #0a2a5e; font-weight: 800; overflow-wrap: anywhere; text-align: right; }
+  .acil-satir .deger.bos { color: #9fb0c8; font-style: italic; }
+  .acil-btn { width: 100%; padding: 13px; border: none; border-radius: 12px; background: linear-gradient(135deg, #0a2a5e, #1565d8); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; margin-top: 18px; transition: .2s; }
+  .acil-btn:hover { filter: brightness(1.1); box-shadow: 0 8px 20px rgba(10,42,94,.35); }
+  .acil-not { text-align: center; font-size: 12.5px; color: #4a658c; margin-top: 12px; line-height: 1.5; }
+
+  @media (max-width: 860px) {
+    .layout { flex-direction: column; }
+    .sidebar { width: 100%; min-width: auto; position: static; }
+    .side-note { display: none; }
+    .welcome-card { padding: 30px 22px; }
+    .profile-hero { flex-direction: column; text-align: center; }
+    .form-grid { flex-direction: column; gap: 0; }
+    .tab-bar { gap: 10px; }
+    .tab-btn { padding: 14px 8px; font-size: 13.5px; }
+    .acil-kart { max-width: 100%; margin: 16px auto 0 auto; }
+  }
+  @media print {
+    body { background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .navbar, .sidebar { display: none !important; }
+    .layout { display: block; max-width: none; margin: 0; padding: 0; }
+    .welcome-card { box-shadow: none; border: none; background: #fff !important; padding: 0; min-height: auto; }
+    .section:not(#sec-acil) { display: none !important; }
+    #sec-acil { display: block !important; }
+    .acil-kart { box-shadow: none; border: 2px solid #0a2a5e; max-width: 100%; margin: 20px auto; page-break-inside: avoid; }
+    .acil-btn { display: none; }
+    .acil-baslik { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <a href="index.html" class="brand"><img src="okulum_guvende_logo.png" class="brand-logo" alt="Okulum Güvende"> Okulum Güvende</a>
+  <div class="user-pill">
+    <div class="avatar" id="avatar"><span id="avatarHarf">?</span><img id="avatarImg" alt=""></div>
+    <span id="navUser">Kullanıcı</span>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <h4>MENÜ</h4>
+    <button class="menu-btn active" data-sec="anasayfa"> Ana Sayfa</button>
+    <button class="menu-btn" data-sec="bilgiler"> Bilgiler</button>
+    <button class="menu-btn" data-sec="ayarlar"> Ayarlar</button>
+    <button class="menu-btn" data-sec="kullanicilar" id="kullanicilarMenu" style="display:none"> Kullanıcılar</button>
+    <button class="menu-btn" data-sec="acil"> Acil Durum</button>
+    <button class="menu-btn" data-sec="hakkimizda"> Biz Kimiz</button>
+    <button class="menu-btn logout" onclick="cikisYap()"> Çıkış Yap</button>
+    <p class="side-note">Bilgilerin bu cihazda güvenle saklanır. Fotoğrafına tıklayarak değiştirebilirsin.</p>
+  </div>
+
+  <div class="container">
+    <div class="welcome-card">
+
+      <div id="sec-anasayfa" class="section active">
+        <div class="profile-hero">
+          <div class="photo-wrap" id="photoWrap" title="Fotoğraf yüklemek için tıkla">
+            <span id="photoHarf">?</span>
+            <img id="profilFoto" alt="profil">
+          </div>
+          <div>
+            <h1 id="mesaj">Hoş Geldin!</h1>
+            <p class="hint">Fotoğrafını değiştirmek için <b>resme tıkla</b>. Detayların için <b>Bilgiler</b> sekmesine geç. Acil durum kartı için <b>Acil Durum</b> menüsüne geç.</p>
+            <input type="file" id="fotoInput" accept="image/*" style="display:none">
+          </div>
+        </div>
+        <div class="qr-kutu">
+          <h2>QR Kodum</h2>
+          <p class="sub">Okutunca ne açılsın?</p>
+          <div class="btn-group" style="justify-content:center;margin:12px 0">
+            <button class="big btn-primary" id="qrTipKisi" onclick="qrTipSec('kisi')">Kişi Kartı</button>
+            <button class="big btn-secondary" id="qrTipSite" onclick="qrTipSec('site')">Site Linki</button>
+          </div>
+          <input class="text" id="qrSite" placeholder="Site adresin (https://kullanici.github.io/repo/login.html)" style="display:none">
+          <div id="qrAlan"></div>
+          <div class="btn-group" style="justify-content:center">
+            <button class="big btn-primary" onclick="qrOlustur()">QR Oluştur</button>
+            <button class="big btn-secondary" id="qrIndirBtn" style="display:none" onclick="qrIndir()">İndir</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="sec-bilgiler" class="section">
+        <h1 class="page"> Bilgiler</h1>
+        <p class="sub" style="margin-bottom:6px">Hesap ve kişi bilgilerin burada.</p>
+        <div class="tab-bar">
+          <button class="tab-btn active" id="tabKisiBtn" onclick="bilgiTab('kisi')">Kişi Bilgileri</button>
+          <button class="tab-btn" id="tabHesapBtn" onclick="bilgiTab('hesap')">Hesap Bilgileri</button>
+        </div>
+        <div id="panel-kisi" class="tab-panel active">
+          <div class="bilgi-kutu">
+            <h2> Kendi Bilgilerin</h2>
+            <div class="form-grid">
+              <input class="text" type="text" id="kisiAd" placeholder="Ad Soyad">
+              <input class="text" type="text" id="kisiTc" placeholder="TC No (11 hane)" maxlength="11" inputmode="numeric">
+            </div>
+            <div class="form-grid">
+              <select class="text" id="kisiKan">
+                <option value="">Kan Grubu seç</option>
+                <option>A+</option><option>A-</option>
+                <option>B+</option><option>B-</option>
+                <option>AB+</option><option>AB-</option>
+                <option>0+</option><option>0-</option>
+              </select>
+            </div>
+            <div class="tel-row">
+              <select class="kod" id="kisiTelKod">
+                <option value="+90" selected>+90 🇹🇷</option>
+                <option value="+32">+32 🇧🇪</option>
+                <option value="+49">+49 🇩🇪</option>
+                <option value="+33">+33 🇫🇷</option>
+                <option value="+31">+31 🇳🇱</option>
+                <option value="+44">+44 🇬🇧</option>
+                <option value="+1">+1 🇺🇸</option>
+                <option value="+41">+41 🇨🇭</option>
+                <option value="+43">+43 🇦🇹</option>
+                <option value="+39">+39 🇮🇹</option>
+                <option value="+34">+34 🇪🇸</option>
+                <option value="+7">+7 🇷🇺</option>
+                <option value="+380">+380 🇺🇦</option>
+                <option value="+994">+994 🇦🇿</option>
+              </select>
+              <input class="text" type="tel" id="kisiTelefon" placeholder="545 321 44 02" autocomplete="tel">
+            </div>
+            <input class="text" type="email" id="kisiEposta" placeholder="E-posta" autocomplete="email">
+            <label class="field-label" for="kisiDogum"> DOĞUM TARİHİN</label>
+            <input class="text" type="date" id="kisiDogum">
+            <label class="field-label" for="adres"> ADRES</label>
+            <textarea class="text" id="adres" rows="2" placeholder="Mahalle, sokak, no, ilçe / il"></textarea>
+
+            <div class="form-grid">
+              <input class="text" type="text" id="alerji" placeholder="Alerjilerin (örn: penisilin, foriş)">
+              <input class="text" type="text" id="kronik" placeholder="Kronik hastalıkların (örn: diyabet, astım)">
+            </div>
+            <div class="form-grid">
+              <input class="text" type="text" id="ilac" placeholder="Kullandığın ilaçlar">
+            </div>
+
+            <h2> Anne Bilgileri</h2>
+            <input class="text" type="text" id="anneAd" placeholder="Anne Ad Soyad">
+            <label class="field-label" for="anneDogum"> ANNE DOĞUM TARİHİ</label>
+            <input class="text" type="date" id="anneDogum">
+            <div class="form-grid">
+              <select class="text" id="anneKan">
+                <option value="">Kan Grubu</option>
+                <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+                <option>AB+</option><option>AB-</option><option>0+</option><option>0-</option>
+              </select>
+            </div>
+            <div class="tel-row">
+              <select class="kod" id="anneTelKod">
+                <option value="+90" selected>+90 🇹🇷</option>
+                <option value="+32">+32 🇧🇪</option>
+                <option value="+49">+49 🇩🇪</option>
+                <option value="+33">+33 🇫🇷</option>
+                <option value="+31">+31 🇳🇱</option>
+                <option value="+44">+44 🇬🇧</option>
+                <option value="+1">+1 🇺🇸</option>
+                <option value="+41">+41 🇨🇭</option>
+                <option value="+43">+43 🇦🇹</option>
+                <option value="+39">+39 🇮🇹</option>
+                <option value="+34">+34 🇪🇸</option>
+                <option value="+7">+7 🇷🇺</option>
+                <option value="+380">+380 🇺🇦</option>
+                <option value="+994">+994 🇦🇿</option>
+              </select>
+              <input class="text" type="tel" id="anneTelefon" placeholder="545 321 44 02" autocomplete="tel">
+            </div>
+            <input class="text" type="email" id="anneEposta" placeholder="Anne E-posta">
+
+            <h2> Baba Bilgileri</h2>
+            <input class="text" type="text" id="babaAd" placeholder="Baba Ad Soyad">
+            <label class="field-label" for="babaDogum"> BABA DOĞUM TARİHİ</label>
+            <input class="text" type="date" id="babaDogum">
+            <div class="form-grid">
+              <select class="text" id="babaKan">
+                <option value="">Kan Grubu</option>
+                <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+                <option>AB+</option><option>AB-</option><option>0+</option><option>0-</option>
+              </select>
+            </div>
+            <div class="tel-row">
+              <select class="kod" id="babaTelKod">
+                <option value="+90" selected>+90 🇹🇷</option>
+                <option value="+32">+32 🇧🇪</option>
+                <option value="+49">+49 🇩🇪</option>
+                <option value="+33">+33 🇫🇷</option>
+                <option value="+31">+31 🇳🇱</option>
+                <option value="+44">+44 🇬🇧</option>
+                <option value="+1">+1 🇺🇸</option>
+                <option value="+41">+41 🇨🇭</option>
+                <option value="+43">+43 🇦🇹</option>
+                <option value="+39">+39 🇮🇹</option>
+                <option value="+34">+34 🇪🇸</option>
+                <option value="+7">+7 🇷🇺</option>
+                <option value="+380">+380 🇺🇦</option>
+                <option value="+994">+994 🇦🇿</option>
+              </select>
+              <input class="text" type="tel" id="babaTelefon" placeholder="545 321 44 02" autocomplete="tel">
+            </div>
+            <input class="text" type="email" id="babaEposta" placeholder="Baba E-posta">
+
+            <h2> Acil Durum Kişisi</h2>
+            <div class="form-grid">
+              <input class="text" type="text" id="acilAd" placeholder="Ad Soyad">
+              <input class="text" type="text" id="acilYakinlik" placeholder="Yakınlık (örn: Anne, Abi)">
+            </div>
+            <div class="tel-row">
+              <select class="kod" id="acilTelKod">
+                <option value="+90" selected>+90 🇹🇷</option>
+                <option value="+32">+32 🇧🇪</option>
+                <option value="+49">+49 🇩🇪</option>
+                <option value="+33">+33 🇫🇷</option>
+                <option value="+31">+31 🇳🇱</option>
+                <option value="+44">+44 🇬🇧</option>
+                <option value="+1">+1 🇺🇸</option>
+                <option value="+41">+41 🇨🇭</option>
+                <option value="+43">+43 🇦🇹</option>
+                <option value="+39">+39 🇮🇹</option>
+                <option value="+34">+34 🇪🇸</option>
+                <option value="+7">+7 🇷🇺</option>
+                <option value="+380">+380 🇺🇦</option>
+                <option value="+994">+994 🇦🇿</option>
+              </select>
+              <input class="text" type="tel" id="acilTelefon" placeholder="545 321 44 02">
+            </div>
+
+            <div class="form-grid">
+              <label class="field-label" for="acilOncelik"> ACIL DURUMDA İLK KİM BİLGİLENDİRİLSİN?</label>
+              <select class="text" id="acilOncelik">
+                <option value="">Seçilmedi</option>
+                <option value="anne">Anne</option>
+                <option value="baba">Baba</option>
+                <option value="acil">Acil Durum Kişisi</option>
+                <option value="hiçbiri">Hiçbiri</option>
+              </select>
+            </div>
+
+            <button class="big btn-primary" style="width:100%;margin-top:6px" onclick="kisiKaydet()">Kaydet</button>
+            <p id="kisiMesaj"></p>
+          </div>
+        </div>
+        <div id="panel-hesap" class="tab-panel">
+          <div class="bilgi-kutu">
+            <div class="info-row"><span> Kullanıcı Adı</span><span id="bilgiKullanici">-</span></div>
+            <div class="info-row"><span> Durum</span><span>Aktif</span></div>
+            <div class="info-row"><span> Rol</span><span id="bilgiRol">-</span></div>
+            <div class="info-row"><span> Kayıtlı sayısı</span><span id="bilgiSayi">-</span></div>
+            <div class="info-row"><span> Tema</span><span>Mavi / Lacivert</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="sec-kullanicilar" class="section">
+        <h1 class="page"> Kullanıcılar</h1>
+        <p class="sub" style="margin-bottom:18px">Kayıtlı hesaplar. Admin olarak şifresiz silebilirsin.</p>
+        <div class="bilgi-kutu">
+          <div id="kullaniciListesi"></div>
+          <p id="kullaniciMesaj" style="margin-top:10px;font-size:13.5px;font-weight:600;color:#0a2a5e"></p>
+        </div>
+      </div>
+
+      <div id="sec-ayarlar" class="section">
+        <h1 class="page"> Ayarlar</h1>
+        <p class="sub" style="margin-bottom:18px">Profilini yönet.</p>
+        <div class="bilgi-kutu">
+          <h2> Şifre değiştir</h2>
+          <input class="text" type="password" id="eskiSifre" placeholder="Mevcut şifre" autocomplete="current-password">
+          <input class="text" type="password" id="yeniSifre" placeholder="Yeni şifre (min 8: Büyük+küçük+rakam+özel)" autocomplete="new-password">
+          <div class="btn-group">
+            <button class="big btn-primary" onclick="sifreDegistir()">Şifreyi Güncelle</button>
+            <button class="big btn-secondary" onclick="fotoSil()">Fotoğrafı Sil</button>
+            <button class="big btn-secondary" onclick="cikisYap()">Çıkış Yap</button>
+          </div>
+          <p id="ayarMesaj"></p>
+        </div>
+        <div class="danger-zone">
+          <h2 style="color:#7a1010;font-size:15.5px;margin-bottom:8px">Hesabı Sil</h2>
+          <p class="sub" style="margin-bottom:12px">Hesabın kalıcı olarak silinir. Devam etmek için şifreni yaz ve neden sildiğine dair geri bildirim bırak (zorunlu).</p>
+          <input class="text" type="password" id="silSifre" placeholder="Şifreni yaz" autocomplete="current-password">
+          <textarea class="text" id="silNeden" rows="2" placeholder="Neden siliyorsun? (örn: artık kullanmıyorum)" style="font-family:inherit;resize:vertical"></textarea>
+          <button class="big btn-danger" style="width:100%" onclick="hesapSil()">Hesabımı Kalıcı Olarak Sil</button>
+          <p id="silMesaj" style="margin-top:10px;font-size:13.5px;font-weight:600"></p>
+        </div>
+      </div>
+
+      <div id="sec-acil" class="section">
+        <h1 class="page"> Acil Durum Kartı</h1>
+        <p class="sub" style="margin-bottom:18px">Acil durumda ilk müdahale edenler için önemli bilgiler. Bu kartı yazdırabilir veya telefonunda açık tutabilirsin.</p>
+        <div class="bilgi-kutu">
+          <div class="acil-kart">
+            <div class="acil-baslik">
+              <h2>Acil Durum Kartı</h2>
+              <p>İlk müdahale bilgi formu</p>
+            </div>
+            <div class="acil-icerik">
+              <div id="acilFoto" class="acil-foto-wrap">
+                <span id="acilFotoHarf">?</span>
+                <img id="acilFotoImg" alt="profil">
+              </div>
+              <div class="acil-satir"><span class="etiket">Ad Soyad</span><span class="deger" id="acilAd">-</span></div>
+              <div class="acil-satir"><span class="etiket">TC Kimlik No</span><span class="deger" id="acilTc">-</span></div>
+              <div class="acil-satir"><span class="etiket">Kan Grubu</span><span class="deger" id="acilKan">-</span></div>
+              <div class="acil-satir"><span class="etiket">Doğum Tarihi</span><span class="deger" id="acilDogum">-</span></div>
+              <div class="acil-satir"><span class="etiket">Alerjiler</span><span class="deger" id="acilAlerji">Bilinmiyor</span></div>
+              <div class="acil-satir"><span class="etiket">Kronik Hastalıklar</span><span class="deger" id="acilKronik">Bilinmiyor</span></div>
+              <div class="acil-satir"><span class="etiket">Kullanılan İlaçlar</span><span class="deger" id="acilIlac">Bilinmiyor</span></div>
+              <div class="acil-satir"><span class="etiket">Acil Kişi</span><span class="deger" id="acilAcilAd">-</span></div>
+              <div class="acil-satir"><span class="etiket">Acil Telefon</span><span class="deger" id="acilAcilTel">-</span></div>
+              <div class="acil-satir"><span class="etiket">E-posta</span><span class="deger" id="acilEposta">-</span></div>
+              <div class="acil-satir"><span class="etiket">İlk Bilgilendirilecek</span><span class="deger" id="acilOncelik">-</span></div>
+              <button class="acil-btn" onclick="acilYazdir()"> Kartı Yazdır</button>
+            </div>
+            <div class="acil-not">Bu kart yalnızca cihazındadır (localStorage). İnternete yüklenmez. Acil durumda telefonundan gösterebilirsin.</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="sec-hakkimizda" class="section">
+        <h1 class="page"> Biz Kimiz</h1>
+        <p class="sub" style="margin-bottom:18px">Okulum Güvende projesi hakkında bilgi.</p>
+        <div class="bilgi-kutu">
+          <h2> Hakkımızda</h2>
+          <p>Okulum Güvende, okulcuların acil durum güvenliğini sağlamak için geliştirilen bir uygulamadır. TC, kan grubu, alerji, kronik hastalık ve acil kişi bilgilerini tek bir kartta tutar.</p>
+          <h2> Özellikler</h2>
+          <ul style="color:#0a2a5e;margin-left:22px;margin-bottom:16px;">
+            <li>Acil Durum Kartı (kan grubu, alerji, kronik hastalık, ilaçlar)</li>
+            <li>Anne, Baba ve Acil Durum Kişisi bilgileri</li>
+            <li>İlk kim bilgilendirilsin seçeneği</li>
+            <li>QR Kod üretimi ve indirme</li>
+            <li>Çevrimdışı çalışır (sadece cihazınızda)</li>
+          </ul>
+          <p>Bu uygulama yalnızca cihazınızda (localStorage) saklanır. İnternete yüklenmez ve paylaşılmaz.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="qrcode.min.js"></script>
+<script>
+  const oturum = localStorage.getItem("oturum");
+  if (!oturum) { window.location.href = "login.html"; }
+
+  function fotoKey() { return "foto_" + oturum; }
+
+  function telAyir(kodId, noId, deger) {
+    const kodEl = document.getElementById(kodId);
+    const noEl = document.getElementById(noId);
+    if (!deger) return;
+    const parcalar = String(deger).trim().split(/\s+/);
+    if (parcalar.length > 1 && /^\+\d+$/.test(parcalar[0])) {
+      const kod = parcalar[0];
+      const no = parcalar.slice(1).join(" ");
+      const varMi = Array.from(kodEl.options).some(o => o.value === kod);
+      kodEl.value = varMi ? kod : "+90";
+      noEl.value = no;
+    } else {
+      noEl.value = deger;
+    }
+  }
+  function telBirlesim(kodId, noId) {
+    const kod = document.getElementById(kodId).value;
+    const no = document.getElementById(noId).value.trim();
+    if (!no) return "";
+    return kod + " " + no;
+  }
+
+  function yukle() {
+    document.getElementById("mesaj").textContent = "Hoş Geldin, " + oturum + "!";
+    document.getElementById("navUser").textContent = oturum;
+    document.getElementById("bilgiKullanici").textContent = oturum;
+    const harf = oturum.charAt(0).toUpperCase();
+    document.getElementById("avatarHarf").textContent = harf;
+    document.getElementById("photoHarf").textContent = harf;
+    try {
+      const users = JSON.parse(localStorage.getItem("kullanicilar") || "[]");
+      document.getElementById("bilgiSayi").textContent = users.length + " kişi";
+      const ben = users.find(u => u.kullanici === oturum);
+      if (ben && ben.admin) {
+        document.getElementById("kullanicilarMenu").style.display = "flex";
+        kullanicilariListele();
+      }
+      document.getElementById("bilgiRol").textContent = ben?.rol || "-";
+    } catch(e) {}
+
+    const foto = localStorage.getItem(fotoKey());
+    if (foto) { fotoGoster(foto); }
+
+    try {
+      const kisi = JSON.parse(localStorage.getItem("kisi_" + oturum) || "{}");
+      const doldur = (id, val) => { if (val) document.getElementById(id).value = val; };
+      doldur("kisiTc", kisi.tc);
+      doldur("kisiKan", kisi.kan);
+      doldur("kisiDogum", kisi.dogum);
+      doldur("adres", kisi.adres);
+      doldur("kisiEposta", kisi.eposta);
+      telAyir("kisiTelKod", "kisiTelefon", kisi.telefon);
+      doldur("alerji", kisi.alerji);
+      doldur("kronik", kisi.kronik);
+      doldur("ilac", kisi.ilac);
+      doldur("anneAd", kisi.anneAd);
+      doldur("anneDogum", kisi.anneDogum);
+      doldur("anneKan", kisi.anneKan);
+      telAyir("anneTelKod", "anneTelefon", kisi.anneTelefon);
+      doldur("anneEposta", kisi.anneEposta);
+      doldur("babaAd", kisi.babaAd);
+      doldur("babaDogum", kisi.babaDogum);
+      doldur("babaKan", kisi.babaKan);
+      telAyir("babaTelKod", "babaTelefon", kisi.babaTelefon);
+      doldur("babaEposta", kisi.babaEposta);
+      doldur("acilAd", kisi.acilAd);
+      doldur("acilYakinlik", kisi.acilYakinlik);
+      telAyir("acilTelKod", "acilTelefon", kisi.acilTelefon);
+      doldur("acilOncelik", kisi.acilOncelik);
+      const gosterilenAd = kisi.ad || oturum;
+      document.getElementById("kisiAd").value = gosterilenAd;
+      document.getElementById("tabKisiBtn").textContent = gosterilenAd;
+
+      // Acil Durum Kartı doldur
+      const acilMap = {
+        acilAd: kisi.ad || oturum,
+        acilTc: kisi.tc,
+        acilKan: kisi.kan,
+        acilDogum: kisi.dogum,
+        acilAlerji: kisi.alerji,
+        acilKronik: kisi.kronik,
+        acilIlac: kisi.ilac,
+        acilAcilAd: kisi.acilAd,
+        acilAcilTel: kisi.acilTelefon,
+        acilEposta: kisi.eposta
+      };
+      Object.entries(acilMap).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val || "-";
+      });
+      // Acil Durumda İlk Kim Bilgilendirilsin? Türkçe etiket
+      const oncelikLabel = { "": "Seçilmedi", anne: "Anne", baba: "Baba", acil: "Acil Durum Kişisi", hiçbiri: "Hiçbiri" };
+      const elOncelik = document.getElementById("acilOncelik");
+      if (elOncelik) elOncelik.textContent = oncelikLabel[kisi.acilOncelik] || "-";
+      if (foto) {
+        const im = document.getElementById("acilFotoImg");
+        im.src = foto; im.style.display = "block";
+        document.getElementById("acilFotoHarf").style.display = "none";
+      }
+    } catch(e) {
+      document.getElementById("kisiAd").value = oturum;
+      document.getElementById("tabKisiBtn").textContent = oturum;
+    }
+  }
+
+  function adminMi() {
+    try {
+      const users = JSON.parse(localStorage.getItem("kullanicilar") || "[]");
+      const ben = users.find(u => u.kullanici === oturum);
+      return !!(ben && ben.admin);
+    } catch(e) { return false; }
+  }
+
+  function kullanicilariListele() {
+    const kutu = document.getElementById("kullaniciListesi");
+    let users = [];
+    try { users = JSON.parse(localStorage.getItem("kullanicilar") || "[]"); } catch(e) {}
+    if (!users.length) { kutu.innerHTML = "<p class='sub'>Kayıtlı kullanıcı yok.</p>"; return; }
+    kutu.innerHTML = "";
+    users.forEach(u => {
+      const satir = document.createElement("div");
+      satir.className = "kullanici-satir";
+      const sol = document.createElement("div");
+      const adHtml = u.kullanici + (u.admin ? "<span class='rozet'>ADMİN</span>" : "") + (u.kullanici === oturum ? "<span class='rozet'>SEN</span>" : "");
+      sol.innerHTML = "<div class='ad'>" + adHtml + "</div>" + (u.eposta ? "<div class='eposta'>" + u.eposta + "</div>" : "");
+      satir.appendChild(sol);
+      if (u.kullanici !== oturum) {
+        const btn = document.createElement("button");
+        btn.className = "btn-sil";
+        btn.textContent = "Sil";
+        btn.onclick = () => kullaniciSil(u.kullanici);
+        satir.appendChild(btn);
+      }
+      kutu.appendChild(satir);
+    });
+  }
+
+  function kullaniciSil(ad) {
+    if (!adminMi()) { document.getElementById("kullaniciMesaj").textContent = "Yetkin yok."; return; }
+    if (ad === oturum) return;
+    if (!confirm(ad + " hesabı kalıcı olarak silinecek. Emin misin?")) return;
+    let users = [];
+    try { users = JSON.parse(localStorage.getItem("kullanicilar") || "[]"); } catch(e) {}
+    users = users.filter(u => u.kullanici !== ad);
+    localStorage.setItem("kullanicilar", JSON.stringify(users));
+    localStorage.removeItem("kisi_" + ad);
+    localStorage.removeItem("foto_" + ad);
+    kullanicilariListele();
+    try { document.getElementById("bilgiSayi").textContent = users.length + " kişi"; } catch(e) {}
+    const m = document.getElementById("kullaniciMesaj");
+    m.style.color = "#0a7a2e";
+    m.textContent = ad + " silindi.";
+  }
+
+  function kisiKaydet() {
+    const al = (id) => document.getElementById(id).value.trim();
+    const msg = document.getElementById("kisiMesaj");
+    const tc = al("kisiTc");
+    if (tc && !/^\d{11}$/.test(tc)) {
+      msg.style.color = "#a12323";
+      msg.textContent = "TC No 11 haneli rakam olmalı.";
+      return;
+    }
+    const veri = {
+      ad: al("kisiAd"), tc, kan: al("kisiKan"), dogum: al("kisiDogum"), adres: al("adres"),
+      eposta: al("kisiEposta"), telefon: telBirlesim("kisiTelKod", "kisiTelefon"),
+      alerji: al("alerji"), kronik: al("kronik"), ilac: al("ilac"),
+      anneAd: al("anneAd"), anneDogum: al("anneDogum"), anneKan: al("anneKan"), anneTelefon: telBirlesim("anneTelKod", "anneTelefon"), anneEposta: al("anneEposta"),
+      babaAd: al("babaAd"), babaDogum: al("babaDogum"), babaKan: al("babaKan"), babaTelefon: telBirlesim("babaTelKod", "babaTelefon"), babaEposta: al("babaEposta"),
+      acilAd: al("acilAd"), acilYakinlik: al("acilYakinlik"), acilTelefon: telBirlesim("acilTelKod", "acilTelefon"), acilOncelik: al("acilOncelik")
+    };
+    localStorage.setItem("kisi_" + oturum, JSON.stringify(veri));
+    if (veri.ad) document.getElementById("tabKisiBtn").textContent = veri.ad;
+    msg.style.color = "#0a2a5e";
+    msg.textContent = "Kişi bilgileri kaydedildi ";
+
+    // Acil kartı da anında güncelle
+    const acilMap = {
+      acilAd: veri.ad || oturum,
+      acilTc: veri.tc,
+      acilKan: veri.kan,
+      acilDogum: veri.dogum,
+      acilAlerji: veri.alerji,
+      acilKronik: veri.kronik,
+      acilIlac: veri.ilac,
+      acilAcilAd: veri.acilAd,
+      acilAcilTel: veri.acilTelefon,
+      acilEposta: veri.eposta,
+      acilOncelik: veri.acilOncelik
+    };
+    Object.entries(acilMap).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val || "-";
+    });
+    // Acil Durumda İlk Kim Bilgilendirilsin? Türkçe etiket
+    const oncelikLabel2 = { "": "Seçilmedi", anne: "Anne", baba: "Baba", acil: "Acil Durum Kişisi", hiçbiri: "Hiçbiri" };
+    const elOncelik2 = document.getElementById("acilOncelik");
+    if (elOncelik2) elOncelik2.textContent = oncelikLabel2[veri.acilOncelik] || "-";
+  }
+
+  function fotoGoster(dataUrl) {
+    const p = document.getElementById("profilFoto");
+    p.src = dataUrl; p.style.display = "block";
+    document.getElementById("photoHarf").style.display = "none";
+    const a = document.getElementById("avatarImg");
+    a.src = dataUrl; a.style.display = "block";
+    document.getElementById("avatarHarf").style.display = "none";
+  }
+
+  function fotoTemizle() {
+    document.getElementById("profilFoto").style.display = "none";
+    document.getElementById("photoHarf").style.display = "block";
+    document.getElementById("avatarImg").style.display = "none";
+    document.getElementById("avatarHarf").style.display = "block";
+  }
+
+  document.getElementById("fotoInput").addEventListener("change", function(e) {
+    const f = e.target.files[0];
+    if (!f) return;
+    if (f.size > 800*1024) { alert("Fotoğraf 800KB'dan küçük olmalı (localStorage için)."); return; }
+    const r = new FileReader();
+    r.onload = function(ev) {
+      try {
+        localStorage.setItem(fotoKey(), ev.target.result);
+        fotoGoster(ev.target.result);
+      } catch(err) { alert("Fotoğraf kaydedilemedi, daha küçük bir resim dene."); }
+    };
+    r.readAsDataURL(f);
+  });
+  document.getElementById("photoWrap").addEventListener("click", () => document.getElementById("fotoInput").click());
+
+  function fotoSil() {
+    localStorage.removeItem(fotoKey());
+    fotoTemizle();
+    document.getElementById("ayarMesaj").textContent = "Profil fotoğrafı silindi.";
+  }
+
+  function sifreDegistir() {
+    const eski = document.getElementById("eskiSifre").value;
+    const yeni = document.getElementById("yeniSifre").value;
+    const msg = document.getElementById("ayarMesaj");
+    const gucluMu = (s) => s.length >= 8 && /[a-zçğıöşü]/.test(s) && /[A-ZÇĞİÖŞÜ]/.test(s) && /\d/.test(s) && /[^A-Za-zÇçĞğİıÖöŞşÜü0-9]/.test(s);
+    try {
+      const users = JSON.parse(localStorage.getItem("kullanicilar") || "[]");
+      const i = users.findIndex(u => u.kullanici === oturum);
+      if (i < 0) { msg.textContent = "Kullanıcı bulunamadı."; return; }
+      if (users[i].sifre !== eski) { msg.textContent = "Mevcut şifre hatalı."; return; }
+      if (!gucluMu(yeni)) { msg.style.color = "#a12323"; msg.textContent = "Yeni şifre güçlü değil: min 8, büyük+küçük+rakam+özel karakter."; return; }
+      users[i].sifre = yeni;
+      localStorage.setItem("kullanicilar", JSON.stringify(users));
+      document.getElementById("eskiSifre").value = "";
+      document.getElementById("yeniSifre").value = "";
+      msg.style.color = "#0a2a5e";
+      msg.textContent = "Şifre başarıyla güncellendi ";
+    } catch(e) { msg.textContent = "Bir hata oluştu."; }
+  }
+
+  function hesapSil() {
+    const sifre = document.getElementById("silSifre").value;
+    const neden = document.getElementById("silNeden").value.trim();
+    const msg = document.getElementById("silMesaj");
+    msg.style.color = "#a12323";
+    if (adminMi()) { msg.textContent = "Admin hesabı buradan silinemez."; return; }
+    if (!sifre) { msg.textContent = "Devam etmek için şifreni yazmalısın."; return; }
+    if (neden.length < 5) { msg.textContent = "Lütfen neden sildiğine dair kısa bir geri bildirim yaz (en az 5 karakter)."; return; }
+    let users = [];
+    try { users = JSON.parse(localStorage.getItem("kullanicilar") || "[]"); } catch(e) {}
+    const i = users.findIndex(u => u.kullanici === oturum);
+    if (i < 0) { msg.textContent = "Kullanıcı bulunamadı."; return; }
+    if (users[i].sifre !== sifre) { msg.textContent = "Şifre hatalı, hesap silinmedi."; return; }
+    if (!confirm("Emin misin? " + oturum + " hesabı kalıcı olarak silinecek.")) return;
+
+    try {
+      const liste = JSON.parse(localStorage.getItem("silme_bildirimleri") || "[]");
+      liste.push({ kullanici: oturum, neden: neden, tarih: new Date().toISOString() });
+      localStorage.setItem("silme_bildirimleri", JSON.stringify(liste));
+    } catch(e) {}
+
+    users.splice(i, 1);
+    localStorage.setItem("kullanicilar", JSON.stringify(users));
+    localStorage.removeItem("kisi_" + oturum);
+    localStorage.removeItem("foto_" + oturum);
+    localStorage.removeItem("oturum");
+    if (localStorage.getItem("kullanici_hatirla") === oturum) localStorage.removeItem("kullanici_hatirla");
+
+    msg.style.color = "#0a7a2e";
+    msg.textContent = "Hesabın silindi, geri bildirimin kaydedildi. Giriş ekranına yönlendiriliyorsun...";
+    setTimeout(() => { window.location.href = "login.html"; }, 1600);
+  }
+
+  // Menü geçişi (mantık aynı)
+  document.querySelectorAll(".menu-btn[data-sec]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".menu-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      document.getElementById("sec-" + btn.dataset.sec).classList.add("active");
+    });
+  });
+
+  function bilgiTab(isim) {
+    const kisiMi = isim === "kisi";
+    document.getElementById("panel-kisi").classList.toggle("active", kisiMi);
+    document.getElementById("panel-hesap").classList.toggle("active", !kisiMi);
+    document.getElementById("tabKisiBtn").classList.toggle("active", kisiMi);
+    document.getElementById("tabHesapBtn").classList.toggle("active", !kisiMi);
+  }
+
+  function vcardOlustur() {
+    const al = (id) => { const el = document.getElementById(id); return el ? el.value.trim().replace(/[\r\n]+/g, " ") : ""; };
+    const ad = al("kisiAd") || oturum;
+    const satirlar = ["BEGIN:VCARD", "VERSION:3.0", "FN:" + ad];
+    if (al("kisiTelefon")) satirlar.push("TEL;TYPE=CELL:" + al("kisiTelefon"));
+    if (al("kisiEposta")) satirlar.push("EMAIL:" + al("kisiEposta"));
+    if (al("adres")) satirlar.push("ADR:;;" + al("adres") + ";;;;");
+    if (al("kisiDogum")) satirlar.push("BDAY:" + al("kisiDogum"));
+    const notlar = [];
+    if (al("kisiTc")) notlar.push("TC:" + al("kisiTc"));
+    if (document.getElementById("kisiKan").value) notlar.push("Kan:" + document.getElementById("kisiKan").value);
+    if (al("alerji")) notlar.push("Alerji:" + al("alerji"));
+    if (al("kronik")) notlar.push("Kronik:" + al("kronik"));
+    if (al("ilac")) notlar.push("Ilac:" + al("ilac"));
+    if (al("anneAd")) notlar.push("Anne:" + al("anneAd") + (al("anneTelefon") ? " " + al("anneTelefon") : ""));
+    if (al("babaAd")) notlar.push("Baba:" + al("babaAd") + (al("babaTelefon") ? " " + al("babaTelefon") : ""));
+    if (al("acilAd")) notlar.push("Acil:" + al("acilAd") + (al("acilYakinlik") ? "(" + al("acilYakinlik") + ")" : "") + (al("acilTelefon") ? " " + al("acilTelefon") : ""));
+    if (notlar.length) satirlar.push("NOTE:" + notlar.join(" | "));
+    satirlar.push("END:VCARD");
+    return satirlar.join("\n");
+  }
+
+  function qrTipSec(tip) {
+    localStorage.setItem("qr_tip", tip);
+    document.getElementById("qrSite").style.display = tip === "site" ? "block" : "none";
+    document.getElementById("qrTipKisi").className = "big " + (tip === "kisi" ? "btn-primary" : "btn-secondary");
+    document.getElementById("qrTipSite").className = "big " + (tip === "site" ? "btn-primary" : "btn-secondary");
+  }
+
+  function qrOlustur() {
+    if (typeof QRCode === "undefined") { alert("QR kitaplığı yüklenemedi. qrcode.min.js dosyası hosgeldin.html ile aynı klasörde olmalı."); return; }
+    const tip = localStorage.getItem("qr_tip") || "kisi";
+    let icerik;
+    if (tip === "site") {
+      let url = document.getElementById("qrSite").value.trim();
+      if (!url) { alert("Önce site adresini yaz."); return; }
+      if (!/^https?:\/\//i.test(url)) url = "https://" + url;
+      document.getElementById("qrSite").value = url;
+      localStorage.setItem("qr_site", url);
+      icerik = url;
+    } else {
+      icerik = vcardOlustur();
+    }
+    const alan = document.getElementById("qrAlan");
+    alan.innerHTML = "";
+    new QRCode(alan, { text: icerik, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M });
+    document.getElementById("qrIndirBtn").style.display = "inline-block";
+  }
+
+  function qrIndir() {
+    const img = document.querySelector("#qrAlan img");
+    const cv = document.querySelector("#qrAlan canvas");
+    const url = img ? img.src : (cv ? cv.toDataURL("image/png") : null);
+    if (!url) return;
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "qr-" + oturum + ".png";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  function acilYazdir() {
+    window.print();
+  }
+
+  function cikisYap() {
+    localStorage.removeItem("oturum");
+    window.location.href = "login.html";
+  }
+
+  yukle();
+  qrTipSec(localStorage.getItem("qr_tip") || "kisi");
+  try {
+    const kayitliSite = localStorage.getItem("qr_site");
+    if (kayitliSite) document.getElementById("qrSite").value = kayitliSite;
+  } catch(e) {}
+</script>
+
+  <!-- PWA Service Worker kaydı -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js");
+    }
+  </script>
+
+</body>
+</html>

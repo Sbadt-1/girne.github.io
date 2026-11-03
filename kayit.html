@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kayıt Ol | Okulum Güvende</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a2a5e">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --navy: #0a2a5e; --blue: #1565d8; --muted: #4a658c; --line: #c6d6ef; --card: #ffffffa1; }
+  body {
+    font-family: 'Segoe UI', system-ui, Arial, sans-serif;
+    min-height: 100vh; display: flex; justify-content: center; align-items: center;
+    background:
+      radial-gradient(900px 500px at 15% 10%, rgba(25,118,210,.45), transparent 60%),
+      radial-gradient(800px 500px at 85% 90%, rgba(100,166,255,.35), transparent 60%),
+      linear-gradient(135deg, #061a38 0%, #0b2f63 45%, #1256a8 100%);
+    padding: 24px;
+  }
+  .blob { position: fixed; border-radius: 50%; filter: blur(70px); opacity: .35; pointer-events: none; animation: float 9s ease-in-out infinite; }
+  .b1 { width: 340px; height: 340px; background: #1976d2; top: -90px; left: -90px; }
+  .b2 { width: 300px; height: 300px; background: #0a2a5e; bottom: -100px; right: -70px; animation-delay: -4s; }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(26px); } }
+
+  .login-card {
+    background: var(--card); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    width: 100%; max-width: 430px; border-radius: 24px;
+    box-shadow: 0 24px 70px rgba(0,10,40,.55); border: 1px solid rgba(255,255,255,.65);
+    overflow: hidden; animation: slideUp .55s cubic-bezier(.2,.8,.25,1);
+    max-height: 92vh; display: flex; flex-direction: column;
+  }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(34px) scale(.98); } to { opacity: 1; transform: none; } }
+  .card-top { background: linear-gradient(135deg, #0a2a5e, #1565d8); padding: 26px 28px 22px 28px; color: #eaf1ff; position: relative; overflow: hidden; flex-shrink: 0; }
+  .card-top::after { content: ""; position: absolute; width: 220px; height: 220px; border-radius: 50%; background: rgba(255,255,255,.12); right: -70px; top: -70px; }
+  .logo-row { display: flex; align-items: center; gap: 13px; position: relative; z-index: 1; }
+  .logo { width: 54px; height: 54px; border-radius: 16px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.4); display: flex; align-items: center; justify-content: center; }
+  .logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; }
+  .card-top h2 { font-size: 21px; }
+  .card-top p { font-size: 13px; opacity: .85; margin-top: 2px; }
+  .progress { height: 5px; background: rgba(255,255,255,.25); border-radius: 4px; margin-top: 14px; overflow: hidden; position: relative; z-index: 1; }
+  .progress i { display: block; height: 100%; width: 50%; background: #fff; border-radius: 4px; transition: width .35s ease; }
+  .card-body { padding: 24px 26px 26px 26px; overflow-y: auto; }
+  .input-group { position: relative; margin-bottom: 12px; }
+  .input-group input, .input-group select {
+    width: 100%; padding: 12px; border: 2px solid var(--line); border-radius: 12px;
+    font-size: 14.5px; outline: none; background: rgba(255,255,255,.75); color: #0a2a5e; transition: .2s;
+  }
+  .input-group input:focus, .input-group select:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 4px rgba(21,101,216,.14); }
+  textarea.text {
+    width: 100%; padding: 12px; border: 2px solid var(--line); border-radius: 12px;
+    font-size: 14px; outline: none; background: rgba(255,255,255,.75); color: #0a2a5e;
+    font-family: inherit; resize: vertical; min-height: 62px;
+  }
+  textarea.text:focus { border-color: var(--blue); background: #fff; }
+  .date-label { display: block; font-size: 12px; color: var(--muted); font-weight: 700; margin: 8px 0 4px 2px; }
+  .rol-secim { display: flex; gap: 12px; margin-bottom: 18px; justify-content: center; flex-wrap: wrap; }
+  .rol-btn { flex: 1; min-width: 150px; max-width: 200px; padding: 22px 12px; border-radius: 16px; border: 2.5px solid var(--line); background: rgba(255,255,255,.75); color: var(--navy); font-weight: 900; font-size: 16px; cursor: pointer; transition: .2s; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .rol-btn span.emoji { font-size: 28px; line-height: 1; }
+  .rol-btn:hover { border-color: var(--blue); transform: translateY(-3px); }
+  .rol-btn.secilen { border-color: var(--blue); background: #e3f0ff; box-shadow: 0 10px 24px rgba(21,101,216,.25); }
+  .rol-btn span.etiket { font-size: 15px; font-weight: 900; }
+  .row2 { display: flex; gap: 10px; }
+  .row2 .input-group { flex: 1; min-width: 0; }
+  .tel-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .tel-row select.kod {
+    width: 112px; flex-shrink: 0; padding: 12px 6px; border: 2px solid var(--line);
+    border-radius: 12px; font-size: 14px; background: rgba(255,255,255,.75); color: #0a2a5e; outline: none; cursor: pointer;
+  }
+  .tel-row select.kod:focus { border-color: var(--blue); background: #fff; }
+  .tel-row .input-group { flex: 1; margin-bottom: 0; min-width: 0; }
+  .toggle-pass { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 12.5px; font-weight: 700; color: var(--navy); opacity: .7; user-select: none; border: none; background: #eef3fd; padding: 6px 10px; border-radius: 8px; }
+  .toggle-pass:hover { opacity: 1; }
+  h3.group { color: #0a2a5e; font-size: 14.5px; margin: 16px 0 8px 0; padding-top: 12px; border-top: 1px dashed #bfd0ec; }
+  h3.group:first-of-type { border-top: none; padding-top: 0; margin-top: 2px; }
+  button.submit {
+    width: 100%; padding: 14px; margin-top: 8px; border: none; border-radius: 12px;
+    background: linear-gradient(135deg, #0a2a5e 0%, #1150ad 60%, #1976d2 100%);
+    color: #f2f7ff; font-size: 15.5px; font-weight: 700; cursor: pointer; transition: .2s;
+  }
+  button.submit:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(10,42,94,.45); }
+  button.ghost {
+    width: 100%; padding: 12px; margin-top: 8px; border-radius: 12px;
+    background: #dfe9fb; color: #0a2a5e; border: 1px solid #bfd0ec;
+    font-size: 14px; font-weight: 700; cursor: pointer; transition: .2s;
+  }
+  button.ghost:hover { background: #cbdaf2; }
+  .footer { text-align: center; font-size: 13px; color: #5a7598; margin-top: 16px; }
+  .footer a { color: #0f4fb0; text-decoration: none; font-weight: 700; }
+  #hata { display: none; font-size: 13px; padding: 11px; border-radius: 10px; margin-bottom: 14px; text-align: center; background: #fde8e8; color: #a12323; border: 1px solid #f3b8b8; line-height: 1.5; }
+  #fotoOngoruntule { display: none; width: 92px; height: 92px; border-radius: 50%; object-fit: cover; margin: 10px auto; border: 3px solid #bfd6f5; box-shadow: 0 6px 18px rgba(10,42,94,.25); }
+  .foto-label { display: block; font-size: 13px; color: #0a2a5e; font-weight: 700; margin: 10px 0 6px 0; }
+  .foto-input { width: 100%; font-size: 13px; color: #0a2a5e; background: rgba(255,255,255,.6); border: 2px dashed var(--line); border-radius: 12px; padding: 12px; cursor: pointer; }
+  .step-page { display: none; }
+  .step-page.active { display: block; animation: fadeIn .3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  #gucBarWrap ul { font-size: 12px; color: var(--muted); list-style: none; padding: 0; margin-top: 6px; line-height: 1.75; }
+  .sifre-ipucu { font-size: 12px; color: #5a7598; margin: -6px 2px 12px 2px; line-height: 1.55; }
+  @media (max-width: 480px) { .row2 { flex-direction: column; gap: 0; } }
+</style>
+</head>
+<body>
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+
+<div class="login-card">
+  <div class="card-top">
+    <div class="logo-row" onclick="window.location.href='index.html'" style="cursor:pointer;">
+      <div class="logo"><img src="okulum_guvende_logo.png" alt="Okulum Güvende"></div>
+      <div>
+        <h2>Kayıt Ol</h2>
+        <p id="altBaslik">Yeni hesap oluştur</p>
+      </div>
+    </div>
+    <div class="progress"><i id="progressBar"></i></div>
+  </div>
+
+  <div class="card-body">
+    <div id="hata"></div>
+
+    <!-- ADIM 1 : rol seçimi -->
+    <div class="rol-secim">
+      <div class="rol-btn" id="btnOgrenci" onclick="rolSec('ogrenci')">
+        <span class="emoji">🎓</span>
+        <span class="etiket">Öğrenci</span>
+      </div>
+      <div class="rol-btn" id="btnOgretmen" onclick="rolSec('ogretmen')">
+        <span class="emoji">👨‍🏫</span>
+        <span class="etiket">Öğretmen</span>
+      </div>
+      <div class="rol-btn" id="btnOkul" onclick="rolSec('okul')">
+        <span class="emoji">🏫</span>
+        <span class="etiket">Okul</span>
+      </div>
+    </div>
+    <input type="hidden" id="seciliRol" value="">
+    <p id="rolSecimMesaj" style="text-align:center;color:#a12323;font-size:13px;margin-bottom:12px;display:none">Lütfen önce bir rol seçiniz.</p>
+
+    <!-- Öğrenci için okul numarası -->
+    <div class="input-group" id="okulNoAlani" style="display:none">
+      <input type="text" id="okulNo" placeholder="Okul Numarası" autocomplete="off">
+    </div>
+
+    <div class="input-group">
+      <input type="text" id="kullanici" placeholder="İsim Soyisim " autocomplete="name">
+      </div>
+      <div class="input-group">
+        <input type="email" id="eposta" placeholder="E-posta" autocomplete="email">
+      </div>
+      <div class="input-group">
+        <select id="rol" required>
+          <option value="">Rolünüzü seçiniz</option>
+          <option value="ogrenci">Öğrenci</option>
+          <option value="ogretmen">Öğretmen</option>
+          <option value="okul">Okul Yöneticisi</option>
+        </select>
+      </div>
+      <div class="tel-row">
+        <select class="kod" id="telKod">
+          <option value="+90" selected>+90 🇹🇷</option>
+          <option value="+32">+32 🇧🇪</option>
+          <option value="+49">+49 🇩🇪</option>
+          <option value="+33">+33 🇫🇷</option>
+          <option value="+31">+31 🇳🇱</option>
+          <option value="+44">+44 🇬🇧</option>
+          <option value="+1">+1 🇺🇸</option>
+          <option value="+41">+41 🇨🇭</option>
+          <option value="+43">+43 🇦🇹</option>
+          <option value="+39">+39 🇮🇹</option>
+          <option value="+34">+34 🇪🇸</option>
+          <option value="+7">+7 🇷🇺</option>
+          <option value="+380">+380 🇺🇦</option>
+          <option value="+994">+994 🇦🇿</option>
+        </select>
+        <div class="input-group">
+          <input type="tel" id="telefon" placeholder="" autocomplete="tel">
+        </div>
+      </div>
+      <div class="input-group">
+        <input type="password" id="sifre" placeholder="Şifre" autocomplete="new-password">
+        <button type="button" class="toggle-pass" id="toggleSifre" title="Göster/Gizle">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0a2a5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <p class="sifre-ipucu">Şifren en az 8 karakter olmalı; büyük harf, küçük harf, rakam ve özel karakter içermelidir.</p>
+      <div class="input-group">
+        <input type="password" id="sifre2" placeholder="Şifre Tekrar" autocomplete="new-password">
+        <button type="button" class="toggle-pass" id="toggleSifre2" title="Göster/Gizle">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0a2a5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div id="gucBarWrap" style="display:none;margin:-2px 0 12px 0">
+        <div style="height:8px;border-radius:6px;background:#e3ebfa;overflow:hidden">
+          <div id="gucBar" style="height:100%;width:0%;background:#e00;border-radius:6px;transition:0.3s"></div>
+        </div>
+        <div id="gucText" style="font-size:12px;margin-top:6px;color:#4a658c"></div>
+        <ul id="sifreKurallar">
+          <li id="k1">• En az 8 karakter</li>
+          <li id="k2">• En az 1 küçük harf (a-z)</li>
+          <li id="k3">• En az 1 büyük harf (A-Z)</li>
+          <li id="k4">• En az 1 rakam (0-9)</li>
+          <li id="k5">• En az 1 özel karakter (!@#$%...)</li>
+        </ul>
+      </div>
+      <button class="submit" id="devamBtn">Hesap Oluştur →</button>
+    </div>
+
+    <!-- ADIM 2 : kişisel + fotoğraf (Hesap Oluştur'a basınca açılır) -->
+    <div id="sayfa2" class="step-page">
+      <h3 class="group">Kendi Bilgilerin</h3>
+      <div class="row2">
+        <div class="input-group"><input type="text" id="tc" placeholder="TC No (11 hane)" maxlength="11" inputmode="numeric"></div>
+        <div class="input-group">
+          <select id="kan">
+            <option value="">Kan Grubu</option>
+            <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+            <option>AB+</option><option>AB-</option><option>0+</option><option>0-</option>
+          </select>
+        </div>
+      </div>
+      <label class="date-label" for="dogum">Kendi Doğum Tarihin (zorunlu)</label>
+      <div class="input-group"><input type="date" id="dogum"></div>
+      <label class="date-label" for="adres">Adres (zorunlu)</label>
+      <textarea class="text" id="adres" placeholder="Mahalle, sokak, no, ilçe / il" rows="2"></textarea>
+
+      <h3 class="group">Anne Bilgileri</h3>
+      <div class="input-group"><input type="text" id="anneAd" placeholder="Anne İsim Soyisim"></div>
+      <label class="date-label" for="anneDogum">Anne Doğum Tarihi (zorunlu)</label>
+      <div class="input-group"><input type="date" id="anneDogum"></div>
+      <div class="input-group">
+        <select id="anneKan">
+          <option value="">Kan Grubu</option>
+          <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+          <option>AB+</option><option>AB-</option><option>0+</option><option>0-</option>
+        </select>
+      </div>
+      <div class="tel-row">
+        <select class="kod" id="anneTelKod">
+          <option value="+90" selected>+90 🇹🇷</option>
+          <option value="+32">+32 🇧🇪</option>
+          <option value="+49">+49 🇩🇪</option>
+          <option value="+33">+33 🇫🇷</option>
+          <option value="+31">+31 🇳🇱</option>
+          <option value="+44">+44 🇬🇧</option>
+          <option value="+1">+1 🇺🇸</option>
+          <option value="+41">+41 🇨🇭</option>
+          <option value="+43">+43 🇦🇹</option>
+          <option value="+39">+39 🇮🇹</option>
+          <option value="+34">+34 🇪🇸</option>
+          <option value="+7">+7 🇷🇺</option>
+          <option value="+380">+380 🇺🇦</option>
+          <option value="+994">+994 🇦🇿</option>
+        </select>
+        <div class="input-group"><input type="tel" id="anneTelefon" placeholder="Anne Telefon ()" autocomplete="tel"></div>
+      </div>
+
+      <h3 class="group">Baba Bilgileri</h3>
+      <div class="input-group"><input type="text" id="babaAd" placeholder="Baba İsim Soyisim"></div>
+      <label class="date-label" for="babaDogum">Baba Doğum Tarihi (zorunlu)</label>
+      <div class="input-group"><input type="date" id="babaDogum"></div>
+      <div class="input-group">
+        <select id="babaKan">
+          <option value="">Kan Grubu</option>
+          <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+          <option>AB+</option><option>AB-</option><option>0+</option><option>0-</option>
+        </select>
+      </div>
+      <div class="tel-row">
+        <select class="kod" id="babaTelKod">
+          <option value="+90" selected>+90 🇹🇷</option>
+          <option value="+32">+32 🇧🇪</option>
+          <option value="+49">+49 🇩🇪</option>
+          <option value="+33">+33 🇫🇷</option>
+          <option value="+31">+31 🇳🇱</option>
+          <option value="+44">+44 🇬🇧</option>
+          <option value="+1">+1 🇺🇸</option>
+          <option value="+41">+41 🇨🇭</option>
+          <option value="+43">+43 🇦🇹</option>
+          <option value="+39">+39 🇮🇹</option>
+          <option value="+34">+34 🇪🇸</option>
+          <option value="+7">+7 🇷🇺</option>
+          <option value="+380">+380 🇺🇦</option>
+          <option value="+994">+994 🇦🇿</option>
+        </select>
+        <div class="input-group"><input type="tel" id="babaTelefon" placeholder="Baba Telefon ()" autocomplete="tel"></div>
+      </div>
+
+      <h3 class="group">Sağlık / Acil Durum</h3>
+      <div class="input-group"><input type="text" id="alerji" placeholder="Alerjilerin (opsiyonel, ör: penicillin)"></div>
+      <div class="input-group"><input type="text" id="kronik" placeholder="Kronik hastalıkların (opsiyonel, ör: diyabet)"></div>
+      <div class="input-group"><input type="text" id="ilac" placeholder="Kullandığın ilaçlar (opsiyonel)"></div>
+
+      <h3 class="group">Acil Durumda İlk Kim Bilgilendirilsin?</h3>
+      <div class="input-group">
+        <select id="acilOncelik">
+          <option value="">Seçilmedi</option>
+          <option value="anne">Anne</option>
+          <option value="baba">Baba</option>
+          <option value="acil">Acil Durum Kişisi</option>
+          <option value="hiçbiri">Hiçbiri</option>
+        </select>
+      </div>
+      <p class="sub" style="font-size:12px;margin:-4px 0 12px 0;">Boş bırakılırsa varsayılan olarak Acil Durum Kişisi seçilir.</p>
+
+      <h3 class="group">Fotoğraf</h3>
+      <label class="foto-label" for="foto">Profil fotoğrafı seç (zorunlu, max 800KB)</label>
+      <input type="file" id="foto" class="foto-input" accept="image/*">
+      <img id="fotoOngoruntule" alt="önizleme">
+
+      <button class="submit" id="bitirBtn">Kaydı Tamamla</button>
+      <button class="ghost" id="geriBtn">← Geri</button>
+    </div>
+
+    <div class="footer">Zaten hesabın var mı? <a href="login.html">Giriş Yap</a></div>
+  </div>
+</div>
+
+<script>
+  function getUsers() {
+    try { return JSON.parse(localStorage.getItem("kullanicilar") || "[]"); }
+    catch(e) { return []; }
+  }
+  function hataGoster(msg) {
+    const h = document.getElementById("hata");
+    h.style.display = "block";
+    h.textContent = msg;
+    document.querySelector(".card-body").scrollTo(0, 0);
+  }
+  function hataGizle() { document.getElementById("hata").style.display = "none"; }
+
+  function sifreAnaliz(s) {
+    const kurallar = {
+      uzun: s.length >= 8,
+      kucuk: /[a-zçğıöşü]/.test(s),
+      buyuk: /[A-ZÇĞİÖŞÜ]/.test(s),
+      rakam: /\d/.test(s),
+      ozel: /[^A-Za-zÇçĞğİıÖöŞşÜü0-9]/.test(s)
+    };
+    const skor = Object.values(kurallar).filter(Boolean).length;
+    return { kurallar, skor, gecerli: skor === 5 };
+  }
+
+  function gucGuncelle() {
+    const s = document.getElementById("sifre").value;
+    const wrap = document.getElementById("gucBarWrap");
+    if (!s) { wrap.style.display = "none"; return; }
+    wrap.style.display = "block";
+    const { kurallar, skor, gecerli } = sifreAnaliz(s);
+    const bar = document.getElementById("gucBar");
+    const txt = document.getElementById("gucText");
+    const renkler = ["#e00", "#e67e22", "#f1c40f", "#2ecc71", "#1565d8", "#0a2a5e"];
+    const isimler = ["Çok zayıf", "Zayıf", "Orta", "İyi", "Güçlü", "Çok güçlü"];
+    bar.style.width = (skor / 5 * 100) + "%";
+    bar.style.background = renkler[skor];
+    txt.textContent = "Güç: " + isimler[skor] + (gecerli ? " ✅" : "");
+    txt.style.color = renkler[skor];
+    const eslestir = [["k1", kurallar.uzun], ["k2", kurallar.kucuk], ["k3", kurallar.buyuk], ["k4", kurallar.rakam], ["k5", kurallar.ozel]];
+    eslestir.forEach(([id, ok]) => {
+      const el = document.getElementById(id);
+      el.style.color = ok ? "#0a7a2e" : "#4a658c";
+      el.textContent = (ok ? "✓ " : "• ") + el.textContent.replace(/^[✓•] /, "");
+    });
+  }
+  document.getElementById("sifre").addEventListener("input", gucGuncelle);
+
+  let fotoData = null;
+  document.getElementById("foto").addEventListener("change", function(e) {
+    const f = e.target.files[0];
+    if (!f) return;
+    if (f.size > 800*1024) { hataGoster("Fotoğraf 800KB'dan küçük olmalı."); return; }
+    const r = new FileReader();
+    r.onload = function(ev) {
+      fotoData = ev.target.result;
+      const img = document.getElementById("fotoOngoruntule");
+      img.src = fotoData; img.style.display = "block";
+      hataGizle();
+    };
+    r.readAsDataURL(f);
+  });
+
+  function sayfaGoster(no) {
+    document.getElementById("sayfa1").classList.toggle("active", no === 1);
+    document.getElementById("sayfa2").classList.toggle("active", no === 2);
+    document.getElementById("altBaslik").textContent = no === 1 ? "Yeni hesap oluştur" : "Kişisel bilgileri tamamla";
+    document.getElementById("progressBar").style.width = no === 1 ? "50%" : "100%";
+    hataGizle();
+    document.querySelector(".card-body").scrollTo(0, 0);
+  }
+
+  function telBirlesim(kodId, noId) {
+    const kod = document.getElementById(kodId).value;
+    const no = document.getElementById(noId).value.trim();
+    if (!no) return "";
+    return kod + " " + no;
+  }
+
+  let seciliRol = '';
+  function rolSec(rol) {
+    seciliRol = rol;
+    document.getElementById('seciliRol').value = rol;
+    ['ogrenci', 'ogretmen', 'okul'].forEach(r => {
+      const btn = document.getElementById('btn' + r.charAt(0).toUpperCase() + r.slice(1));
+      btn.classList.toggle('secilen', r === rol);
+    });
+    document.getElementById('okulNoAlani').style.display = rol === 'ogrenci' ? 'block' : 'none';
+    document.getElementById('rolSecimMesaj').style.display = 'none';
+  }
+
+  document.getElementById("devamBtn").addEventListener("click", () => {
+    const kullanici = document.getElementById("kullanici").value.trim();
+    const eposta = document.getElementById("eposta").value.trim();
+    const rol = document.getElementById("seciliRol").value;
+    const telefon = telBirlesim("telKod", "telefon");
+    const sifre = document.getElementById("sifre").value;
+    const sifre2 = document.getElementById("sifre2").value;
+
+    if (kullanici.length < 3) return hataGoster("İsim Soyisim en az 3 karakter olmalı.");
+    if (kullanici.toLowerCase() === "admin") return hataGoster("Bu isim rezerve, başka bir isim seç.");
+    if (!rol) return hataGoster("Lütfen önce bir rol seçiniz.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eposta)) return hataGoster("Geçerli bir E-posta gir.");
+    if (telefon.replace(/\D/g, "").length < 10) return hataGoster("Geçerli bir Telefon Numarası gir (en az 10 hane).");
+    const analiz = sifreAnaliz(sifre);
+    if (!analiz.gecerli) return hataGoster("Şifre güçlü değil: min 8 karakter, büyük+küçük harf, rakam ve özel karakter içermeli.");
+    if (sifre !== sifre2) return hataGoster("Şifreler eşleşmiyor.");
+
+    const users = getUsers();
+    if (users.some(u => u.kullanici.toLowerCase() === kullanici.toLowerCase()))
+      return hataGoster("Bu isim zaten kayıtlı. Giriş yap.");
+
+    sayfaGoster(2);
+  });
+
+  document.getElementById("geriBtn").addEventListener("click", () => sayfaGoster(1));
+
+  document.getElementById("bitirBtn").addEventListener("click", () => {
+    const kullanici = document.getElementById("kullanici").value.trim();
+    const eposta = document.getElementById("eposta").value.trim();
+    const rol = document.getElementById("rol").value;
+    const telefon = telBirlesim("telKod", "telefon");
+    const sifre = document.getElementById("sifre").value;
+    const tc = document.getElementById("tc").value.trim();
+    const kan = document.getElementById("kan").value;
+    const dogum = document.getElementById("dogum").value;
+    const adres = document.getElementById("adres").value.trim();
+    const anneAd = document.getElementById("anneAd").value.trim();
+    const anneDogum = document.getElementById("anneDogum").value;
+    const anneKan = document.getElementById("anneKan").value;
+    const anneTelefon = telBirlesim("anneTelKod", "anneTelefon");
+    const babaAd = document.getElementById("babaAd").value.trim();
+    const babaDogum = document.getElementById("babaDogum").value;
+    const babaKan = document.getElementById("babaKan").value;
+    const babaTelefon = telBirlesim("babaTelKod", "babaTelefon");
+    const alerji = document.getElementById("alerji").value.trim();
+    const kronik = document.getElementById("kronik").value.trim();
+    const ilac = document.getElementById("ilac").value.trim();
+    const acilOncelik = document.getElementById("acilOncelik").value;
+    const rol = document.getElementById("seciliRol").value;
+    const okulNo = document.getElementById("okulNo").value.trim();
+
+    if (!rol) return hataGoster("Lütfen önce bir rol seçiniz.");
+    if (rol === 'ogrenci' && !okulNo) return hataGoster("Öğrenci için Okul Numarası zorunludur.");
+
+    if (!/^\d{11}$/.test(tc)) return hataGoster("TC No 11 haneli rakam olmalı (zorunlu).");
+    if (!kan) return hataGoster("Kendi kan grubunu seç (zorunlu).");
+    if (!dogum) return hataGoster("Kendi doğum tarihin zorunlu.");
+    if (adres.length < 10) return hataGoster("Adres zorunlu (en az 10 karakter yaz).");
+    if (!fotoData) return hataGoster("Profil fotoğrafı zorunlu. Lütfen fotoğraf seç.");
+
+    const users = getUsers();
+    if (users.some(u => u.kullanici.toLowerCase() === kullanici.toLowerCase()))
+      return hataGoster("Bu isim zaten kayıtlı.");
+
+    users.push({ kullanici, sifre, eposta, rol });
+    localStorage.setItem("kullanicilar", JSON.stringify(users));
+
+    const kisi = {
+      ad: kullanici, tc, kan, dogum, adres, eposta, telefon,
+      alerji, kronik, ilac, rol, okulNo,
+      anneAd, anneDogum, anneKan, anneTelefon, anneEposta: "",
+      babaAd, babaDogum, babaKan, babaTelefon, babaEposta: "",
+      acilAd: "", acilYakinlik: "", acilTelefon: "",
+      acilOncelik
+    };
+    localStorage.setItem("kisi_" + kullanici, JSON.stringify(kisi));
+    try { localStorage.setItem("foto_" + kullanici, fotoData); } catch(e) {}
+
+    window.location.href = "login.html?kayit=ok";
+  });
+
+  document.getElementById("toggleSifre").addEventListener("click", () => {
+    const inp = document.getElementById("sifre");
+    const btn = document.getElementById("toggleSifre");
+    const acikMi = inp.type === "password";
+    inp.type = acikMi ? "text" : "password";
+    btn.innerHTML = acikMi ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0a2a5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.83m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>' : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0a2a5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  });
+
+  document.getElementById("toggleSifre2").addEventListener("click", () => {
+    const inp = document.getElementById("sifre2");
+    const btn = document.getElementById("toggleSifre2");
+    const acikMi = inp.type === "password";
+    inp.type = acikMi ? "text" : "password";
+    btn.innerHTML = acikMi ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0a2a5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.83m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>' : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0a2a5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  });
+</script>
+
+  <!-- PWA Service Worker kaydı -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js");
+    }
+  </script>
+
+</body>
+</html>

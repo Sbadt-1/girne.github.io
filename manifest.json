@@ -1,0 +1,23 @@
+{
+  "name": "Okulum Güvende",
+  "short_name": "OkulumGüvende",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0a2a5e",
+  "theme_color": "#0a2a5e",
+  "orientation": "portrait",
+  "scope": "/",
+  "description": "Okulcular için acil durum bilgi ve güvenlik kartı uygulaması. TC, kan grubu, alerji, kronik hastalık ve acil kişi bilgilerini tek yerde tutar.",
+  "icons": [
+    {
+      "src": "icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
